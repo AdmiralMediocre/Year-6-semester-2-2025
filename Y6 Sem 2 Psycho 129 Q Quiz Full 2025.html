@@ -884,7 +884,6 @@ function setupAudio() {
       audio.play().catch(e => console.log("Autoplay was prevented."));
     }
 }
-}
 window.toggleMute = function() {
     state.isMuted = !state.isMuted;
     const audio = document.getElementById('bg-music');
@@ -1615,6 +1614,7 @@ window.onload = () => {
 </body>
 
 </html>
+
 
 
 
