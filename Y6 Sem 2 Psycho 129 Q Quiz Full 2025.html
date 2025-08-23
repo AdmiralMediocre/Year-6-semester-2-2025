@@ -874,16 +874,16 @@ function getScoreRemark(score) {
   return "This was a tough one. Review your mistakes and try again! 🤔";
 }
 
-// --- Audio Controls ---
+// ---  Controls ---
+// --- AFTER (Corrected Code) ---
 function setupAudio() {
     const audio = document.getElementById('bg-music');
-    if (musicBase64 && musicBase64.includes('data:audio')) {
-      audio.src = musicBase64;
-    }
+    audio.src = "background_music.mp3"; // Set the path to your MP3 file here
     audio.muted = state.isMuted;
     if (!state.isMuted) {
       audio.play().catch(e => console.log("Autoplay was prevented."));
     }
+}
 }
 window.toggleMute = function() {
     state.isMuted = !state.isMuted;
@@ -1615,6 +1615,7 @@ window.onload = () => {
 </body>
 
 </html>
+
 
 
 
