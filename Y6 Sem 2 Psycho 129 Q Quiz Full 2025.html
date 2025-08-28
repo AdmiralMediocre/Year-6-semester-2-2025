@@ -4,7 +4,169 @@
   <meta charset="UTF-8">
   <title>Multiple Choice Question Preparation</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* Github Model Styles */
+    :root {
+      --primary: #007bff; --secondary: #6c757d; --success: #28a745; --danger: #dc3545;
+      --background: #fff; --text: #212529; --border: #dee2e6;
+      --light-bg: #f8f9fa; --card-bg: #ffffff; --shadow: 0 4px 6px rgba(0,0,0,0.1);
+      --correct: #28a745; --wrong: #dc3545; --error: #dc3545;
+    }
+    body.dark {
+      --primary: #4dabf7; --secondary: #909296; --success: #40c057; --danger: #fa5252;
+      --background: #1a1b1e; --text: #c1c2c5; --border: #373A40;
+      --light-bg: #25262b; --card-bg: #2c2e33; --shadow: 0 4px 6px rgba(0,0,0,0.2);
+      --correct: #40c057; --wrong: #fa5252;
+    }
+    body {
+      font-family: 'Inter', sans-serif; margin: 0; background-color: var(--background);
+      color: var(--text); transition: background-color 0.2s, color 0.2s;
+    }
+    .container { max-width: 900px; margin: 20px auto; padding: 20px; }
+    h1, h2, h3 { color: var(--text); }
+    button, .menu-button {
+      border: none; padding: 10px 15px; border-radius: 8px; font-weight: 600;
+      cursor: pointer; transition: all 0.2s, box-shadow 0.2s;
+      background-color: var(--primary); color: white;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    button:hover, .menu-button:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    button:active, .menu-button:active, .response-box:active {
+        transform: scale(0.98);
+        opacity: 1;
+    }
+    button:disabled { background-color: var(--secondary); cursor: not-allowed; transform: none; box-shadow: none; }
+    .btn-secondary { background-color: var(--secondary); }
+    .btn-danger { background-color: var(--danger); }
+    .global-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .header-icons .icon-btn { background: none; font-size: 1.5rem; padding: 5px; color: var(--text); box-shadow: none; }
+    .main-menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 20px; }
+    .menu-button {
+        background-color: var(--card-bg); color: var(--text); text-align: center; font-size: 1.1rem;
+        padding: 20px 15px; box-shadow: var(--shadow); border: 1px solid var(--border);
+        display: flex; flex-direction: column; justify-content: center; align-items: center;
+        min-height: 120px;
+    }
+    .question-card { background-color: var(--card-bg); padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: var(--shadow); border: 1px solid var(--border); }
+    .response-box { padding: 12px; margin: 8px 0; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; display: flex; align-items: center; transition: transform 0.15s, background-color 0.2s, border-color 0.2s; }
+    .response-box:hover {
+        background-color: var(--light-bg);
+        border-color: var(--primary);
+        transform: scale(1.01);
+    }
+    .response-box.correct { background-color: #d4edda; border-color: #c3e6cb; color: #155724; font-weight: bold; }
+    .response-box.wrong { background-color: #f8d7da; border-color: #f5c6cb; color: #721c24; font-weight: bold; }
+    body.dark .response-box.correct { background-color: #2b5a3a; border-color: #3f7d4d; color: #a3e9a4; }
+    body.dark .response-box.wrong { background-color: #6b2a33; border-color: #8b3d48; color: #f5c2c7; }
+    .response-prefix { font-weight: bold; margin-right: 10px; }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; font-weight: 500; }
+    input[type="text"], input[type="number"], select, textarea {
+        width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 4px;
+        background-color: var(--background); color: var(--text); box-sizing: border-box;
+    }
+    .progress-bar-wrap { height: 10px; background-color: var(--border); border-radius: 5px; overflow: hidden; }
+    .progress-bar { height: 100%; background-color: var(--primary); transition: width 0.3s; }
+    .score-bar { font-size: 2rem; font-weight: bold; padding: 20px; background-color: var(--light-bg); border-radius: 8px; text-align: center; }
+    .score-remark { font-size: 1.2rem; margin-top: 15px; text-align: center; }
+
+    /* === USER REQUEST: Larger Menu & Instruction Styles === */
+    .menu-icon {
+        font-size: 2.5rem;
+        margin-bottom: 8px;
+    }
+    .instruction-page h3 {
+        font-size: 1.6rem;
+        margin-top: 25px;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 8px;
+    }
+    .instruction-page p {
+        font-size: 1.2rem;
+        line-height: 1.6;
+    }
+    /* ======================================================= */
+
+    /* === Moodle Model Specific Styles & Dark Mode Overrides === */
+    .nav-btn { transition: all 0.2s ease-in-out; position: relative; }
+    .nav-btn-default { background-color: #ffffff; color: #374151; border: 1px solid #d1d5db; }
+    .nav-btn-current { background-color: #3b82f6; color: #ffffff; border-color: #3b82f6; transform: scale(1.1); }
+    .nav-btn-correct { background-color: #22c55e; color: #ffffff; border-color: #22c55e; }
+    .nav-btn-incorrect { background-color: #ef4444; color: #ffffff; border-color: #ef4444; }
+    .flag-icon { position: absolute; top: -4px; right: -2px; font-size: 14px; color: #f59e0b; }
+    .option-correct { background-color: #dcfce7; border-color: #22c55e; color: #166534; font-weight: 600; }
+    .option-incorrect { background-color: #fee2e2; border-color: #ef4444; color: #991b1b; font-weight: 600; }
+    body.dark #moodle-quiz-container { --tw-bg-opacity: 1; background-color: var(--background); color: var(--text); }
+    body.dark #moodle-quiz-container .bg-white { background-color: var(--card-bg); }
+    body.dark #moodle-quiz-container .bg-slate-50 { background-color: var(--light-bg); }
+    body.dark #moodle-quiz-container .bg-slate-200 { background-color: var(--secondary); color: white; }
+    body.dark #moodle-quiz-container .text-slate-500 { color: #909296; }
+    body.dark #moodle-quiz-container .text-slate-600, body.dark #moodle-quiz-container .text-slate-700, body.dark #moodle-quiz-container .text-slate-800 { color: var(--text); }
+    body.dark #moodle-quiz-container .border, body.dark #moodle-quiz-container .border-slate-200, body.dark #moodle-quiz-container .border-slate-300 { border-color: var(--border); }
+    body.dark #moodle-quiz-container input, body.dark #moodle-quiz-container select { background-color: var(--background); color: var(--text); }
+    body.dark #moodle-quiz-container .option-correct { background-color: #2b5a3a; border-color: #3f7d4d; color: #a3e9a4; }
+    body.dark #moodle-quiz-container .option-incorrect { background-color: #6b2a33; border-color: #8b3d48; color: #f5c2c7; }
+    body.dark #moodle-quiz-container .nav-btn-default { background-color: var(--light-bg); color: var(--text); border-color: var(--border); }
+
+    /* === USER REQUESTED UI CHANGES FOR SETUP SCREENS === */
+    .setup-card {
+        background-color: var(--card-bg);
+        border: 1px solid var(--border);
+        padding: 25px;
+        border-radius: 12px;
+        margin-top: 20px;
+        box-shadow: var(--shadow);
+    }
+    .setup-card p {
+        margin: 0 0 20px 0;
+        font-size: 1.1rem;
+        color: var(--text);
+    }
+    .setup-card .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 20px;
+        align-items: center;
+    }
+    .setup-card .form-group {
+        margin-bottom: 0;
+    }
+    .setup-card .form-group label {
+        font-weight: 500;
+        font-size: 0.9rem;
+        margin-bottom: 8px;
+    }
+    .setup-card .range-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .setup-card .range-group label {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 500;
+    }
+    .setup-card .range-group input {
+        width: 80px;
+        text-align: center;
+    }
+    .setup-card .button-group {
+        margin-top: 25px;
+        display: flex;
+        gap: 15px;
+    }
+    .setup-card button {
+        padding: 12px 20px;
+        font-size: 1rem;
+    }
+     /* ======================================================= */
+  </style>
 </head>
 <body>
 
@@ -17,18 +179,12 @@ const MAIN_BANK_KEY = "mcq_main_bank_v4";
 const MEMORY_LIST_KEY = "mcq_memory_list_v4";
 const SETTINGS_KEY = "mcq_settings_v4";
 
-// IMPORTANT: Replace this placeholder with your own Base64 music string
-  
 // --- State Management ---
 function getDefaultState() {
   return {
     view: "menu",
     mainQuestionBank: [
-       
-
-
-
-{
+     {
     question: "A man, named KH, 35 years old from Takeo province, taking per os Carbamazepine 200 mg, 1 tablet morning and 1 tablet evening since 2007 to stop convulsions. He is regular with this medication. If he stops carbamazepine even 1 tablet, convulsion will happen. Carbamazepine is an/a:",
     responses: ["Anticonvulsant and mood stabilizer", "Antalgic", "Antipsychotic", "Antibiotic", "Anticholinergic"],
     correct: 0,
@@ -802,11 +958,6 @@ function getDefaultState() {
     correct: 2,
     img: ""
   }
-
-
-
-
-    
     ],
     memoriesList: [], // Stores indices of questions from the main bank
     testQuestions: [],
@@ -830,9 +981,12 @@ function saveData() {
 function loadData() {
   try {
     const memoryData = JSON.parse(localStorage.getItem(MEMORY_LIST_KEY));
-    if (memoryData) {
-      state.memoriesList = memoryData;
+    if (memoryData && Array.isArray(memoryData)) {
+        state.memoriesList = memoryData.filter(index =>
+            index >= 0 && index < state.mainQuestionBank.length
+        );
     }
+
     const settings = JSON.parse(localStorage.getItem(SETTINGS_KEY));
     if (settings) {
         state.dark = settings.dark || false;
@@ -873,10 +1027,10 @@ function getScoreRemark(score) {
 }
 
 // ---  Controls ---
-// --- AFTER (Corrected Code) ---
 function setupAudio() {
     const audio = document.getElementById('bg-music');
-    audio.src = "background_music.mp3"; // Set the path to your MP3 file here
+    if (!audio) return;
+    audio.src = "background_music.mp3"; 
     audio.muted = state.isMuted;
     if (!state.isMuted) {
       audio.play().catch(e => console.log("Autoplay was prevented."));
@@ -885,27 +1039,35 @@ function setupAudio() {
 window.toggleMute = function() {
     state.isMuted = !state.isMuted;
     const audio = document.getElementById('bg-music');
-    audio.muted = state.isMuted;
-    if (!state.isMuted) {
-        audio.play().catch(e => console.log("Could not play audio."));
-    } else {
-        audio.pause();
+    if (audio) {
+      audio.muted = state.isMuted;
+      if (!state.isMuted) {
+          audio.play().catch(e => console.log("Could not play audio."));
+      } else {
+          audio.pause();
+      }
     }
     saveSettings();
-    render();
+    const muteIcons = document.querySelectorAll('.icon-btn[onclick="toggleMute()"]');
+    muteIcons.forEach(icon => {
+        icon.innerHTML = state.isMuted ? '🔇' : '🔊';
+    });
 }
 window.toggleDarkMode = function() {
     state.dark = !state.dark;
     saveSettings();
-    render();
+    document.body.classList.toggle('dark', state.dark);
+    const darkModeIcons = document.querySelectorAll('.icon-btn[onclick="toggleDarkMode()"]');
+    darkModeIcons.forEach(icon => {
+        icon.innerHTML = state.dark ? "☀️" : "🌙";
+    });
 }
-
 
 // --- Core Rendering Engine ---
 function render() {
   document.body.className = state.dark ? "dark" : "";
   const app = document.getElementById("app");
-  app.innerHTML = ''; // Clear previous content
+  app.innerHTML = ''; 
 
   switch (state.view) {
     case "menu": renderMenu(app); break;
@@ -914,14 +1076,15 @@ function render() {
     case "study_setup": renderRangeSetup(app, 'study'); break;
     case "study_test": renderFullTest(app); break;
     case "test_setup": renderRangeSetup(app, 'test'); break;
-    case "test_test": renderFullTest(app); break; // Reuses study test view
+    case "test_test": renderFullTest(app); break;
     case "sixty_setup": renderSixtySetup(app); break;
-    case "paged_test": renderPagedTest(app); break; // For 60/60, time limit, memory tests
+    case "paged_test": renderPagedTest(app); break;
     case "timelimit_setup": renderTimeLimitSetup(app); break;
     case "memories_setup": renderMemoriesSetup(app); break;
     case "results": renderResults(app); break;
     case "instruction": renderInstruction(app); break;
     case "edit_question": renderEdit(app); break;
+    case "moodle_test": renderMoodleTest(app); break;
     default: app.innerHTML = "<h2>Unknown Page</h2>"; break;
   }
 }
@@ -950,19 +1113,19 @@ function renderMenu(app) {
     </div>
     <p>Number of Questions in the Main Bank: <b>${state.mainQuestionBank.length} Questions</b></p>
     <div class="main-menu">
-      <div class="menu-button" onclick="setView('study_setup')">📖<br>Study Question</div>
-      <div class="menu-button" onclick="setView('test_setup')">📝<br>Test Question</div>
-      <div class="menu-button" onclick="setView('sixty_setup')">⏱️<br>60/60 Test</div>
-      <div class="menu-button" onclick="setView('timelimit_setup')">⏳<br>Time Limit Test</div>
-      <div class="menu-button" onclick="setView('memories_list')">🧠<br>Memories List</div>
-      <div class="menu-button" onclick="setView('memories_setup')">🎯<br>Memories Test</div>
-      <div class="menu-button" onclick="setView('view_bank')">🏦<br>View Question Bank</div>
-      <div class="menu-button" onclick="setView('instruction')">ℹ️<br>Instruction</div>
+      <div class="menu-button" onclick="setView('study_setup')"><span class="menu-icon">📖</span>Study Question</div>
+      <div class="menu-button" onclick="setView('test_setup')"><span class="menu-icon">📝</span>Test Question</div>
+      <div class="menu-button" onclick="setView('moodle_test')"><span class="menu-icon">🏫</span>Moodle Test</div>
+      <div class="menu-button" onclick="setView('sixty_setup')"><span class="menu-icon">⏱️</span>60/60 Test</div>
+      <div class="menu-button" onclick="setView('timelimit_setup')"><span class="menu-icon">⏳</span>Time Limit Test</div>
+      <div class="menu-button" onclick="setView('memories_setup')"><span class="menu-icon">🎯</span>Memories Test</div>
+      <div class="menu-button" onclick="setView('memories_list')"><span class="menu-icon">🧠</span>Memories List</div>
+      <div class="menu-button" onclick="setView('view_bank')"><span class="menu-icon">🏦</span>View Bank</div>
+      <div class="menu-button" onclick="setView('instruction')"><span class="menu-icon">ℹ️</span>Instruction</div>
     </div>
-    <div class="notes-section">
-      <p><b>Note:</b> For safety reasons (Malware, Malicious Links), please ONLY download the Quiz from an official source.</p>
-      <p><b>Note:</b> For iOS, you may need to download an HTML viewer app, then import this file into it. For PC and Android, you can open this file directly in your browser.</p>
-      <p><b>Notice:</b> This Quiz is offline. It doesn't require any Internet connection nor does it connect to a server. It runs entirely within this single file.</p>
+    <div class="notes-section" style="margin-top:20px; font-size: 0.9em; opacity: 0.8;">
+      <p><b>Notice:</b> Before starting the quiz, Please allow Third party cookie for the site. Editing Question Bank: won't saved into the file.</p>
+      <p><b>Important Notice:</b> If the memories List is Broken, Please clear question In Memories List. If There is any persist, Clear your Browsing data and if there is any mistake in question bank or More info, please contact me on Telegram : <a href="https://t.me/multiplequestion" target="_blank" style="color: var(--primary);">https://t.me/multiplequestion</a>.</p>
     </div>
   `;
 }
@@ -978,18 +1141,18 @@ function renderViewBank(app) {
 function renderManageQuestion(q, index, isMainBankView) {
     const originalIndex = isMainBankView ? index : state.memoriesList[index];
     const questionData = state.mainQuestionBank[originalIndex];
-    if (!questionData) return ''; // Safety check
+    if (!questionData) return '';
 
     return `
     <div class="question-card">
       <div style="display: flex; justify-content: space-between; align-items: flex-start;">
         <div style="font-weight:bold;">Q${originalIndex + 1}: ${escapeHtml(questionData.question)}</div>
-        <div class="manage-actions">
+        <div class="manage-actions" style="display: flex; gap: 5px; flex-shrink: 0; margin-left: 10px;">
           <button onclick="editQuestion(${originalIndex})">Edit</button>
           <button class="btn-danger" onclick="${isMainBankView ? `deleteQuestion(${originalIndex})` : `deleteFromMemory(${index})`}">Delete</button>
         </div>
       </div>
-      ${questionData.img ? `<img src="${questionData.img}" class="question-img">` : ""}
+      ${questionData.img ? `<img src="${questionData.img}" class="question-img" style="max-width: 100%; border-radius: 8px; margin-top: 10px;">` : ""}
       <ol type="A" style="margin:12px 0 0 20px; padding-left: 0;">
         ${questionData.responses.map((r, j) => `
           <li style="padding: 4px 0; ${j === questionData.correct ? 'font-weight:600; color:var(--correct);' : ''}">
@@ -1002,12 +1165,18 @@ function renderManageQuestion(q, index, isMainBankView) {
 function renderMemoriesList(app) {
     let content = `
         ${renderHeader("Memories List")}
+        <div style="background-color: var(--light-bg); border: 1px solid var(--border); border-radius: 8px; padding: 15px; text-align: center; margin-bottom: 20px;">
+            <h3 style="margin: 0; font-size: 1.2em; color: var(--text);">Total Questions in Memories: <span style="color: var(--primary); font-weight: bold; font-size: 1.5em;">${state.memoriesList.length}</span></h3>
+        </div>
         <div class="setup-form">
             <div class="form-group">
                 <label for="add-mem-input">Add questions from Main Bank by number (e.g., "45, 52, 60-70"):</label>
                 <input type="text" id="add-mem-input" placeholder="Enter numbers or ranges...">
             </div>
-            <button onclick="addQuestionsToMemory()">Add to List</button>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="addQuestionsToMemory()">Add to List</button>
+                <button class="btn-danger" onclick="clearMemories()">Clear All Questions</button>
+            </div>
         </div>
         <div class="manage-list" style="margin-top: 20px;">
     `;
@@ -1020,20 +1189,21 @@ function renderMemoriesList(app) {
     app.innerHTML = content;
 }
 function renderRangeSetup(app, mode) {
+    const title = mode === 'study' ? 'Study Question Setup' : 'Test Question Setup';
     app.innerHTML = `
-        ${renderHeader(mode === 'study' ? 'Study Question Setup' : 'Test Question Setup')}
-        <div class="setup-form">
+        ${renderHeader(title)}
+        <div class="setup-card">
             <p>Select the questions you want to practice.</p>
-            <div id="range-container">
-                <div class="form-group range-input">
-                    <label>From</label>
-                    <input type="number" class="range-from" min="1" max="${state.mainQuestionBank.length}" placeholder="1">
-                    <label>To</label>
-                    <input type="number" class="range-to" min="1" max="${state.mainQuestionBank.length}" placeholder="${state.mainQuestionBank.length}">
-                </div>
+            <div class="range-group">
+                <label>From</label>
+                <input type="number" class="range-from" min="1" max="${state.mainQuestionBank.length}" placeholder="1">
+                <label>To</label>
+                <input type="number" class="range-to" min="1" max="${state.mainQuestionBank.length}" placeholder="${state.mainQuestionBank.length}">
             </div>
-            <button onclick="startTestFromRange('${mode}')">Start ${mode === 'study' ? 'Study' : 'Test'}</button>
-            <button class="btn-secondary" onclick="startTestFromRange('${mode}', true)">${mode === 'study' ? 'Study' : 'Test'} Whole Bank</button>
+            <div class="button-group">
+                <button onclick="startTestFromRange('${mode}')">Start ${mode === 'study' ? 'Study' : 'Test'}</button>
+                <button class="btn-secondary" onclick="startTestFromRange('${mode}', true)">${mode === 'study' ? 'Study' : 'Test'} Whole Bank</button>
+            </div>
         </div>
     `;
 }
@@ -1056,7 +1226,7 @@ function renderFullTestQuestion(q, index, mode) {
       <h3 style="font-weight:bold;">
         ${mode === 'study' ? `Q${q.originalIndex + 1}: ` : ''}${escapeHtml(q.question)}
       </h3>
-      ${q.img ? `<img src="${q.img}" class="question-img">` : ''}
+      ${q.img ? `<img src="${q.img}" class="question-img" style="max-width: 100%; border-radius: 8px; margin-top: 10px;">` : ''}
       <div class="responses">
         ${q.shuffledResponses.map((r, j) => {
             const isCorrect = q.shuffledMap[j] === q.correct;
@@ -1065,7 +1235,7 @@ function renderFullTestQuestion(q, index, mode) {
             if (isAnswered) {
                 if (isSelected && isCorrect) cls += ' correct';
                 else if (isSelected && !isCorrect) cls += ' wrong';
-                else if (isCorrect) cls += ' correct'; // Show correct one if user was wrong
+                else if (isCorrect) cls += ' correct';
             }
             return `
             <div class="${cls}" onclick="handleImmediateFeedback(${index}, ${j})">
@@ -1080,10 +1250,11 @@ function renderFullTestQuestion(q, index, mode) {
 function renderSixtySetup(app) {
     app.innerHTML = `
         ${renderHeader("60/60 Test Setup")}
-        <div class="setup-form">
+        <div class="setup-card">
+            <p>Select the difficulty level for the test.</p>
             <div class="form-group">
-                <label for="difficulty">Select Difficulty:</label>
-                <select id="difficulty" style="width:100%; padding: 10px; font-size: 1em;">
+                <label for="difficulty">Time Limit per Question:</label>
+                <select id="difficulty">
                     <option value="60">Normal (60s / Q)</option>
                     <option value="45">Lag lag lag (45s / Q)</option>
                     <option value="30">Why so slow? (30s / Q)</option>
@@ -1092,55 +1263,63 @@ function renderSixtySetup(app) {
                     <option value="10">Asian diff (10s / Q)</option>
                 </select>
             </div>
-            <button onclick="startPagedTest('sixty')" ${state.mainQuestionBank.length < 60 ? 'disabled' : ''}>
-              Start 60/60 Test
-            </button>
-            ${state.mainQuestionBank.length < 60 ? `<p style="color:var(--error);">You need at least 60 questions in the main bank to start this mode.</p>` : ''}
+            <div class="button-group">
+                <button onclick="startPagedTest('sixty')" ${state.mainQuestionBank.length < 60 ? 'disabled' : ''}>
+                  Start 60/60 Test
+                </button>
+            </div>
+            ${state.mainQuestionBank.length < 60 ? `<p style="color:var(--error); margin-top: 15px;">You need at least 60 questions in the main bank to start this mode.</p>` : ''}
         </div>
     `;
 }
 function renderTimeLimitSetup(app) {
     app.innerHTML = `
         ${renderHeader("Time Limit Test Setup")}
-        <div class="setup-form">
-            <div class="form-group">
-                <label>Select Question Range:</label>
-                <div class="range-input">
+        <div class="setup-card">
+            <p>Define the question range and time limit.</p>
+            <div class="form-grid">
+                <div class="form-group range-group">
                     <label>From</label>
                     <input type="number" id="range-from" min="1" max="${state.mainQuestionBank.length}" value="1">
                     <label>To</label>
                     <input type="number" id="range-to" min="1" max="${state.mainQuestionBank.length}" value="${state.mainQuestionBank.length}">
                 </div>
+                <div class="form-group">
+                    <label for="time-limit">Time per question (sec):</label>
+                    <input type="number" id="time-limit" min="5" value="30">
+                </div>
             </div>
-            <div class="form-group">
-                <label for="time-limit">Time per question (seconds):</label>
-                <input type="number" id="time-limit" min="5" value="30">
+            <div class="button-group">
+                <button onclick="startPagedTest('timelimit')">Start Time Limit Test</button>
+                <button class="btn-secondary" onclick="startPagedTest('timelimit', true)">Test Whole Bank</button>
             </div>
-            <button onclick="startPagedTest('timelimit')">Start Time Limit Test</button>
-            <button class="btn-secondary" onclick="startPagedTest('timelimit', true)">Test Whole Bank</button>
         </div>
     `;
 }
 function renderMemoriesSetup(app) {
     app.innerHTML = `
         ${renderHeader("Memories Test Setup")}
-        <div class="setup-form">
-            <div class="form-group">
-                <label>Test Mode:</label>
-                <select id="mem-test-mode" style="width:100%; padding: 10px; font-size: 1em;">
-                    <option value="memory_only">Only Questions from Memories List (${state.memoriesList.length} questions)</option>
-                    <option value="memory_plus">Memories List + Random from Main Bank</option>
-                </select>
+        <div class="setup-card">
+             <p>Configure your targeted practice session.</p>
+            <div class="form-grid">
+                 <div class="form-group">
+                    <label>Test Mode:</label>
+                    <select id="mem-test-mode">
+                        <option value="memory_only">Only Questions from Memories List (${state.memoriesList.length} questions)</option>
+                        <option value="memory_plus">Memories List + Random from Main Bank</option>
+                    </select>
+                </div>
+                <div class="form-group" id="extra-questions-group" style="display:none;">
+                    <label for="extra-questions">Random questions to add:</label>
+                    <input type="number" id="extra-questions" min="1" value="10" max="${state.mainQuestionBank.length - state.memoriesList.length}">
+                </div>
             </div>
-            <div class="form-group" id="extra-questions-group" style="display:none;">
-                <label for="extra-questions">Number of random questions to add from Main Bank:</label>
-                <input type="number" id="extra-questions" min="1" value="10" max="${state.mainQuestionBank.length - state.memoriesList.length}">
+            <div class="button-group">
+                <button onclick="startPagedTest('memory')" ${state.memoriesList.length === 0 ? 'disabled' : ''}>Start Memories Test</button>
             </div>
-            <button onclick="startPagedTest('memory')" ${state.memoriesList.length === 0 ? 'disabled' : ''}>Start Memories Test</button>
-             ${state.memoriesList.length === 0 ? `<p style="color:var(--error);">Your memories list is empty. Add questions to start.</p>` : ''}
+             ${state.memoriesList.length === 0 ? `<p style="color:var(--error); margin-top: 15px;">Your memories list is empty. Add questions to start.</p>` : ''}
         </div>
     `;
-    // Add event listener to show/hide extra questions input
     setTimeout(() => {
         const select = document.getElementById('mem-test-mode');
         const extraGroup = document.getElementById('extra-questions-group');
@@ -1148,6 +1327,7 @@ function renderMemoriesSetup(app) {
             select.addEventListener('change', (e) => {
                 extraGroup.style.display = e.target.value === 'memory_plus' ? 'block' : 'none';
             });
+            if (select.value === 'memory_plus') extraGroup.style.display = 'block';
         }
     }, 0);
 }
@@ -1166,11 +1346,11 @@ function renderPagedTest(app) {
         <div class="progress-bar-wrap"><div class="progress-bar" style="width:${((state.idx) / total) * 100}%"></div></div>
         <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: 500;">
             <span>Question ${state.idx + 1} of ${total}</span>
-            ${timePerQuestion ? `<span>Time left: <b>${timeLeft}s</b></span>` : ''}
+            ${timePerQuestion ? `<span>Time left: <b>${timeLeft}</b>s</span>` : ''}
         </div>
         <div class="question-card">
             <h3 style="font-weight:bold;">${escapeHtml(q.question)}</h3>
-            ${q.img ? `<img src="${q.img}" class="question-img">` : ''}
+            ${q.img ? `<img src="${q.img}" class="question-img" style="max-width: 100%; border-radius: 8px; margin-top: 10px;">` : ''}
             <div class="responses">
                 ${q.shuffledResponses.map((r, j) => {
                     const isCorrect = q.shuffledMap[j] === q.correct;
@@ -1222,12 +1402,12 @@ function renderResults(app) {
 
 function renderWrongReview(q) {
     const questionData = state.mainQuestionBank[q.originalIndex];
-    if (!questionData) return ''; // Should not happen
+    if (!questionData) return '';
 
     return `
     <div class="question-card">
         <div style="font-weight:600;">Q${q.originalIndex + 1}: ${escapeHtml(questionData.question)}</div>
-        ${questionData.img ? `<img src="${questionData.img}" class="question-img">`:''}
+        ${questionData.img ? `<img src="${questionData.img}" class="question-img" style="max-width: 100%; border-radius: 8px; margin-top: 10px;">`:''}
         <div class="responses">
             ${questionData.responses.map((r,j)=>{
                 const isCorrect = (j === questionData.correct);
@@ -1248,28 +1428,34 @@ function renderInstruction(app) {
     app.innerHTML = `
     ${renderHeader("Instructions")}
     <div class="instruction-page">
-      <p>Welcome to the Multiple Choice Question Preparation tool! Here's how to use the different features:</p>
+      <p>Welcome! This guide explains what each button on the main menu does.</p>
 
       <h3>📖 Study Question</h3>
-      <p>This mode is for practice. You can choose to study all questions or a specific range. Your answers are checked immediately. Incorrectly answered questions are added to your "Memories List".</p>
+      <p>Practice questions with instant feedback. See right away if you are correct or wrong. Wrong answers are saved to your 'Memories List' to study later.</p>
 
       <h3>📝 Test Question</h3>
-      <p>This mode simulates a real test. Questions and answer options are randomized. You won't see if you're right or wrong until you finish. Your score and incorrect answers are shown at the end.</p>
+      <p>Take a test just like a real exam. Questions are shuffled. You get your score and see the answers only at the very end.</p>
 
+      <h3>🏫 Moodle Test</h3>
+      <p>A different test style that looks like Moodle. You can 'flag' questions to come back to them later and use a navigation panel to jump between questions.</p>
+      
       <h3>⏱️ 60/60 Test</h3>
-      <p>A fast-paced challenge where you answer 60 random questions from the bank. Each question has a time limit based on the difficulty you select. Great for testing your speed and accuracy under pressure.</p>
+      <p>A fast-paced challenge. Answer 60 random questions with a time limit for each one. Choose your difficulty and test your speed.</p>
 
       <h3>⏳ Time Limit Test</h3>
-      <p>Similar to the "Test Question" mode, but you can set a custom time limit for each question. This is perfect for practicing under specific time constraints.</p>
-
-      <h3>🧠 Memories List</h3>
-      <p>This is your personal list of challenging questions. Any question you get wrong in a test is automatically added here. You can also add questions manually. Use the "Memories Test" to focus on these questions.</p>
+      <p>Create your own timed test. Pick a range of questions and set how many seconds you get for each one.</p>
 
       <h3>🎯 Memories Test</h3>
-      <p>A targeted test to help you conquer your difficult questions. You can choose to test only the questions in your "Memories List", or mix them with a set number of random questions from the main bank.</p>
+      <p>Practice only the questions you've gotten wrong before. This test uses your personal 'Memories List' to help you improve.</p>
+      
+      <h3>🧠 Memories List</h3>
+      <p>A special list of all questions you've answered incorrectly. You can also manually add or remove questions to study.</p>
 
       <h3>🏦 View Question Bank</h3>
-      <p>Here you can see all the questions available in the quiz. You can add new questions, edit existing ones, or delete them. This is the master list for all tests.</p>
+      <p>See all the questions available in the app. You can add new questions, edit existing ones, or delete them here.</p>
+      
+      <h3>ℹ️ Instruction</h3>
+      <p>You are here! This page explains what all the buttons do.</p>
     </div>
   `;
 }
@@ -1309,16 +1495,11 @@ function renderEdit(app) {
     `;
 }
 
-
 // --- Event Handlers & Logic ---
 function setView(view) {
-    if (view === 'view_bank') {
-        // Clear local storage except for memories list
-        const memories = localStorage.getItem(MEMORY_LIST_KEY);
-        localStorage.clear();
-        if (memories) {
-            localStorage.setItem(MEMORY_LIST_KEY, memories);
-        }
+    clearTimeout(state.timerId); 
+    if (moodleQuiz && moodleQuiz.timerInterval) { 
+        clearInterval(moodleQuiz.timerInterval);
     }
     state.view = view;
     render();
@@ -1341,7 +1522,6 @@ function addNewQuestion() {
 
 function editQuestion(index) {
     state.editIdx = index;
-    // Deep copy the question to avoid modifying the original during editing
     state.editQ = JSON.parse(JSON.stringify(state.mainQuestionBank[index]));
     setView('edit_question');
 }
@@ -1349,7 +1529,6 @@ function editQuestion(index) {
 function deleteQuestion(index) {
     if (confirm(`Are you sure you want to delete Question ${index + 1}?`)) {
         state.mainQuestionBank.splice(index, 1);
-        // Also remove from memories list if it's there
         state.memoriesList = state.memoriesList.filter(memIndex => memIndex !== index);
         state.memoriesList = state.memoriesList.map(memIndex => memIndex > index ? memIndex - 1 : memIndex);
         saveData();
@@ -1375,15 +1554,13 @@ function saveQuestion() {
         correct: correct
     };
 
-    if (state.editIdx === -1) { // Adding new question
+    if (state.editIdx === -1) {
         state.mainQuestionBank.push(newQuestion);
-    } else { // Editing existing question
+    } else {
         state.mainQuestionBank[state.editIdx] = newQuestion;
     }
-    saveData();
     setView('view_bank');
 }
-
 
 function addQuestionsToMemory() {
     const input = document.getElementById('add-mem-input').value;
@@ -1414,7 +1591,6 @@ function addQuestionsToMemory() {
     const currentMemorySet = new Set(state.memoriesList);
     numbersToAdd.forEach(num => currentMemorySet.add(num));
     state.memoriesList = Array.from(currentMemorySet).sort((a, b) => a - b);
-
     saveData();
     render();
 }
@@ -1424,6 +1600,14 @@ function deleteFromMemory(index) {
         state.memoriesList.splice(index, 1);
         saveData();
         render();
+    }
+}
+
+function clearMemories() {
+    if (state.memoriesList.length > 0 && confirm("Are you sure you want to clear all questions from your Memories List? This action cannot be undone.")) {
+        state.memoriesList = [];
+        saveData(); 
+        render(); 
     }
 }
 
@@ -1466,37 +1650,40 @@ function startTestFromRange(mode, wholeBank = false) {
 
 
 function handleImmediateFeedback(questionIndex, responseIndex) {
-    if (state.answers[questionIndex] !== undefined) return; // Already answered
-
+    if (state.answers[questionIndex] !== undefined) return;
     state.answers[questionIndex] = responseIndex;
-    render(); // Re-render to show feedback
+    render();
 }
 
 function finishAttempt() {
     let correctCount = 0;
     const wrongAnswers = [];
-    const newMemoryItems = new Set(state.memoriesList);
+    const correctlyAnsweredIndices = new Set();
 
     state.testQuestions.forEach((q, i) => {
         const selectedResponseIndex = state.answers[i];
-        if(selectedResponseIndex === undefined) {
-             wrongAnswers.push({ q });
-             newMemoryItems.add(q.originalIndex);
-             return;
+        if (selectedResponseIndex === undefined || selectedResponseIndex === -1) {
+            wrongAnswers.push({ q });
+            return;
         }
-
         const originalResponseIndex = q.shuffledMap[selectedResponseIndex];
         const isCorrect = originalResponseIndex === q.correct;
 
         if (isCorrect) {
             correctCount++;
+            correctlyAnsweredIndices.add(q.originalIndex);
         } else {
             wrongAnswers.push({ q });
-            newMemoryItems.add(q.originalIndex);
         }
     });
 
-    state.memoriesList = Array.from(newMemoryItems).sort((a, b) => a - b);
+    const finalMemoryItems = new Set(state.memoriesList);
+
+    wrongAnswers.forEach(item => {
+        finalMemoryItems.add(item.q.originalIndex);
+    });
+    
+    state.memoriesList = Array.from(finalMemoryItems).sort((a, b) => a - b);
     saveData();
 
     state.currentTestConfig.results = {
@@ -1504,16 +1691,15 @@ function finishAttempt() {
         total: state.testQuestions.length,
         wrongAnswers
     };
-
     setView('results');
 }
 
 function retryTest() {
-    const { mode, wholeBank, from, to, timePerQuestion } = state.currentTestConfig;
+    const { mode, wholeBank } = state.currentTestConfig;
     if (mode === 'study' || mode === 'test') {
         startTestFromRange(mode, wholeBank);
     } else if (mode === 'sixty' || mode === 'timelimit' || mode === 'memory') {
-        startPagedTest(mode, wholeBank);
+        setView(mode + '_setup');
     }
 }
 function startPagedTest(mode, wholeBank = false) {
@@ -1537,9 +1723,6 @@ function startPagedTest(mode, wholeBank = false) {
         questions = shuffle(indices).map(i => ({...state.mainQuestionBank[i], originalIndex: i}));
         config.title = "Time Limit Test";
         config.timePerQuestion = time;
-        config.from = from;
-        config.to = to;
-        config.wholeBank = wholeBank;
     } else if (mode === 'memory') {
         const testMode = document.getElementById('mem-test-mode').value;
         let memQuestions = state.memoriesList.map(i => ({...state.mainQuestionBank[i], originalIndex: i}));
@@ -1572,7 +1755,6 @@ function startPagedTest(mode, wholeBank = false) {
     setView('paged_test');
 }
 
-
 function handlePagedAnswer(responseIndex) {
     if (state.answers[state.idx] !== undefined) return;
     state.answers[state.idx] = responseIndex;
@@ -1593,32 +1775,480 @@ function nextPagedQuestion() {
 }
 
 function pagedTimerTick() {
+    if (!state.currentTestConfig) return;
     state.currentTestConfig.timeLeft--;
     if (state.currentTestConfig.timeLeft <= 0) {
-        state.answers[state.idx] = -1; // Mark as incorrect (timeout)
-        nextPagedQuestion();
+        state.answers[state.idx] = -1; 
+        clearTimeout(state.timerId);
+        render(); 
+        setTimeout(() => nextPagedQuestion(), 1500); 
     } else {
-        render();
+        const timerDisplay = document.querySelector("div[style*='space-between'] span b");
+        if(timerDisplay) {
+            timerDisplay.textContent = state.currentTestConfig.timeLeft;
+        }
+        state.timerId = setTimeout(pagedTimerTick, 1000);
     }
 }
+
+
+// --- START: MOODLE QUIZ INTEGRATION ---
+function renderMoodleTest(app) {
+    app.innerHTML = `
+        ${renderHeader("Moodle Style Test")}
+        <div id="moodle-quiz-container" class="text-slate-800 p-0 sm:p-4 rounded-lg">
+             <div id="app-container" class="w-full max-w-6xl mx-auto">
+                <div id="setup-screen" class="bg-white p-8 rounded-2xl shadow-lg text-center">
+                    <h1 class="text-4xl font-bold text-slate-700 mb-4">Quiz Setup</h1>
+                    <p class="text-slate-500 mb-8">Configure your quiz settings below.</p>
+                    <div class="bg-slate-50 border border-slate-200 rounded-lg p-4 mb-6">
+                        <p class="text-lg font-semibold">Total questions in bank: <span id="total-questions-bank" class="text-blue-600">0</span></p>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="flex flex-col items-start">
+                            <label for="num-questions" class="font-medium text-slate-600 mb-2">Number of Questions:</label>
+                            <input type="number" id="num-questions" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" min="1" value="10">
+                        </div>
+                        <div class="flex flex-col items-start">
+                            <label for="time-limit" class="font-medium text-slate-600 mb-2">Time Limit per Question:</label>
+                            <select id="time-limit" class="w-full p-3 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="0">No Time Limit</option>
+                                <option value="15">15 seconds</option>
+                                <option value="30">30 seconds</option>
+                                <option value="45">45 seconds</option>
+                                <option value="60" selected>60 seconds</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button id="start-quiz-btn" class="mt-8 w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300">
+                        Start Quiz
+                    </button>
+                </div>
+
+                <div id="quiz-screen" class="hidden">
+                    <div class="grid lg:grid-cols-12 gap-8">
+                        <div class="lg:col-span-3 bg-white p-6 rounded-2xl shadow-lg h-fit">
+                            <h2 class="text-xl font-bold text-slate-700 mb-4 text-center">Quiz Navigation</h2>
+                            <div id="quiz-navigation" class="grid grid-cols-5 gap-2"></div>
+                        </div>
+                        <div class="lg:col-span-9 bg-white p-8 rounded-2xl shadow-lg">
+                            <div class="flex justify-between items-start mb-6">
+                                <div class="text-lg font-semibold text-slate-700">
+                                    Question <span id="question-number">1</span> of <span id="total-questions">10</span>
+                                </div>
+                                <div id="timer-container" class="hidden">
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5"><div id="timer-bar" class="bg-blue-600 h-2.5 rounded-full" style="width: 100%"></div></div>
+                                    <div class="text-lg font-bold text-blue-600 text-right mt-1">Time Left: <span id="timer">60</span>s</div>
+                                </div>
+                            </div>
+                            <div class="flex flex-col md:flex-row gap-6">
+                                <div class="border border-slate-200 rounded-lg p-4 h-fit w-full md:w-48 flex-shrink-0 text-center md:text-left">
+                                    <h3 id="info-box-q-number" class="font-bold text-md mb-2 text-slate-700">Question 1</h3>
+                                    <p id="info-box-status" class="text-sm text-slate-500">Not complete</p>
+                                    <p class="text-sm text-slate-500 mb-4">Marked out of 1.00</p>
+                                    <button id="flag-btn" class="flex items-center justify-center md:justify-start gap-2 text-sm text-blue-600 hover:text-blue-800 transition w-full">
+                                        <svg id="flag-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6H8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"></path></svg>
+                                        <span id="flag-btn-text">Flag question</span>
+                                    </button>
+                                </div>
+                                <div class="flex-grow">
+                                    <div id="question-container" class="mb-6">
+                                        <p id="question-text" class="text-xl leading-relaxed mb-4 text-slate-800"></p>
+                                        <img id="question-image" src="" alt="Question Image" class="my-4 rounded-lg max-w-full h-auto mx-auto shadow-md hidden" onerror="this.style.display='none'">
+                                    </div>
+                                    <div id="options-container" class="space-y-3"></div>
+                                </div>
+                            </div>
+                            <div class="mt-8 flex justify-between items-center">
+                                <button id="prev-btn" class="bg-slate-200 text-slate-700 font-bold py-2 px-5 rounded-lg hover:bg-slate-300 transition">Previous</button>
+                                <button id="next-btn" class="bg-blue-600 text-white font-bold py-2 px-5 rounded-lg hover:bg-blue-700 transition">Next</button>
+                                <button id="submit-btn" class="hidden bg-green-600 text-white font-bold py-2 px-5 rounded-lg hover:bg-green-700 transition">Submit Quiz</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="results-screen" class="hidden bg-white p-8 rounded-2xl shadow-lg text-center">
+                    <h1 class="text-4xl font-bold text-slate-700 mb-2">Quiz Complete!</h1>
+                    <p class="text-slate-500 mb-6">Here's how you did. Incorrect answers have been added to your Memories List.</p>
+                    <div class="bg-slate-50 border border-slate-200 rounded-lg p-6 mb-8 inline-block">
+                        <p class="text-2xl font-semibold text-slate-700">Your Score</p>
+                        <p class="text-5xl font-bold text-blue-600"><span id="score">0</span> / <span id="total-score">0</span></p>
+                    </div>
+                    <div class="flex justify-center gap-4">
+                        <button id="review-incorrect-btn" class="bg-yellow-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-yellow-600 transition">Review Incorrect Answers</button>
+                        <button id="restart-quiz-btn" class="bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition">Try Again</button>
+                    </div>
+                </div>
+
+                <div id="review-screen" class="hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h1 class="text-3xl font-bold text-slate-700">Reviewing Incorrect Answers</h1>
+                        <button id="back-to-results-btn" class="bg-slate-200 text-slate-700 font-bold py-2 px-5 rounded-lg hover:bg-slate-300 transition">Back to Results</button>
+                    </div>
+                    <div id="incorrect-questions-container" class="space-y-8"></div>
+                </div>
+            </div>
+        </div>
+    `;
+    moodleQuiz.init();
+}
+
+const moodleQuiz = {
+    currentQuizQuestions: [], userAnswers: [], flaggedQuestions: [],
+    currentQuestionIndex: 0, timeLimit: 0, timerInterval: null,
+
+    transformQuestionBank: function() {
+        return state.mainQuestionBank.map((q, index) => ({
+            question: q.question,
+            image: q.img || null,
+            options: q.responses,
+            answer: q.responses[q.correct],
+            originalIndex: index 
+        }));
+    },
+    
+    init: function() {
+        this.setupScreen = document.getElementById('setup-screen');
+        this.quizScreen = document.getElementById('quiz-screen');
+        this.resultsScreen = document.getElementById('results-screen');
+        this.reviewScreen = document.getElementById('review-screen');
+        this.startQuizBtn = document.getElementById('start-quiz-btn');
+        this.numQuestionsInput = document.getElementById('num-questions');
+        this.timeLimitSelect = document.getElementById('time-limit');
+        this.totalQuestionsBankEl = document.getElementById('total-questions-bank');
+        this.questionNumberEl = document.getElementById('question-number');
+        this.totalQuestionsEl = document.getElementById('total-questions');
+        this.questionTextEl = document.getElementById('question-text');
+        this.questionImageEl = document.getElementById('question-image');
+        this.optionsContainer = document.getElementById('options-container');
+        this.quizNavigation = document.getElementById('quiz-navigation');
+        this.timerContainer = document.getElementById('timer-container');
+        this.timerEl = document.getElementById('timer');
+        this.timerBar = document.getElementById('timer-bar');
+        this.prevBtn = document.getElementById('prev-btn');
+        this.nextBtn = document.getElementById('next-btn');
+        this.submitBtn = document.getElementById('submit-btn');
+        this.scoreEl = document.getElementById('score');
+        this.totalScoreEl = document.getElementById('total-score');
+        this.restartQuizBtn = document.getElementById('restart-quiz-btn');
+        this.reviewIncorrectBtn = document.getElementById('review-incorrect-btn');
+        this.backToResultsBtn = document.getElementById('back-to-results-btn');
+        this.incorrectQuestionsContainer = document.getElementById('incorrect-questions-container');
+        this.infoBoxQNumber = document.getElementById('info-box-q-number');
+        this.infoBoxStatus = document.getElementById('info-box-status');
+        this.flagBtn = document.getElementById('flag-btn');
+        this.flagBtnText = document.getElementById('flag-btn-text');
+        this.flagIcon = document.getElementById('flag-icon');
+
+        const questionBank = this.transformQuestionBank();
+        this.totalQuestionsBankEl.textContent = questionBank.length;
+        this.numQuestionsInput.max = questionBank.length;
+        if (parseInt(this.numQuestionsInput.value) > questionBank.length && questionBank.length > 0) {
+            this.numQuestionsInput.value = questionBank.length;
+        }
+
+        this.setupScreen.classList.remove('hidden');
+        this.quizScreen.classList.add('hidden');
+        this.resultsScreen.classList.add('hidden');
+        this.reviewScreen.classList.add('hidden');
+        
+        this.startQuizBtn.addEventListener('click', () => this.startQuiz());
+        this.nextBtn.addEventListener('click', () => this.goToNextQuestion());
+        this.prevBtn.addEventListener('click', () => this.goToPrevQuestion());
+        this.submitBtn.addEventListener('click', () => this.submitQuiz());
+        this.restartQuizBtn.addEventListener('click', () => this.init());
+        this.reviewIncorrectBtn.addEventListener('click', () => this.showReviewScreen());
+        this.flagBtn.addEventListener('click', () => this.toggleFlag(this.currentQuestionIndex));
+        this.backToResultsBtn.addEventListener('click', () => {
+            this.reviewScreen.classList.add('hidden');
+            this.resultsScreen.classList.remove('hidden');
+        });
+    },
+
+    startQuiz: function() {
+        const questionBank = this.transformQuestionBank();
+        const numQuestions = parseInt(this.numQuestionsInput.value);
+        this.timeLimit = parseInt(this.timeLimitSelect.value);
+
+        if (isNaN(numQuestions) || numQuestions <= 0 || numQuestions > questionBank.length) {
+            alert("Please enter a valid number of questions.");
+            this.numQuestionsInput.focus();
+            return;
+        }
+
+        this.currentQuizQuestions = this.shuffleArray(questionBank).slice(0, numQuestions);
+        this.userAnswers = new Array(numQuestions).fill(null);
+        this.flaggedQuestions = new Array(numQuestions).fill(false);
+        this.currentQuestionIndex = 0;
+
+        this.setupScreen.classList.add('hidden');
+        this.quizScreen.classList.remove('hidden');
+
+        this.buildNavigation();
+        this.loadQuestion(this.currentQuestionIndex);
+    },
+
+    loadQuestion: function(index) {
+        clearInterval(this.timerInterval);
+
+        const question = this.currentQuizQuestions[index];
+        this.questionNumberEl.textContent = index + 1;
+        this.totalQuestionsEl.textContent = this.currentQuizQuestions.length;
+        this.questionTextEl.innerHTML = escapeHtml(question.question); 
+
+        this.infoBoxQNumber.textContent = `Question ${index + 1}`;
+        this.infoBoxStatus.textContent = this.userAnswers[index] ? 'Answer saved' : 'Not complete';
+        this.updateFlagStatusUI(index);
+
+        if (question.image) {
+            this.questionImageEl.src = question.image;
+            this.questionImageEl.classList.remove('hidden');
+        } else {
+            this.questionImageEl.classList.add('hidden');
+        }
+
+        this.optionsContainer.innerHTML = '';
+        const shuffledOptions = this.shuffleArray([...question.options]);
+        shuffledOptions.forEach(option => {
+            const optionId = `q${index}_option_${option.replace(/\s+/g, '')}`;
+            const isChecked = this.userAnswers[index] && this.userAnswers[index].selected === option;
+            
+            const optionElement = document.createElement('label');
+            optionElement.htmlFor = optionId;
+            optionElement.className = "flex items-center w-full p-3 border border-slate-300 rounded-lg cursor-pointer hover:bg-slate-50 transition";
+            
+            optionElement.innerHTML = `
+                <input type="radio" id="${optionId}" name="question${index}" value="${option}" class="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2" ${isChecked ? 'checked' : ''}>
+                <span class="ml-3 text-slate-700">${escapeHtml(option)}</span>
+            `;
+            this.optionsContainer.appendChild(optionElement);
+        });
+
+        if (this.userAnswers[index]) {
+            this.showAnswerFeedback(index);
+        } else {
+            document.querySelectorAll(`input[name="question${index}"]`).forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    const isCorrect = e.target.value === this.currentQuizQuestions[this.currentQuestionIndex].answer;
+                    this.userAnswers[this.currentQuestionIndex] = { selected: e.target.value, correct: isCorrect };
+                    this.infoBoxStatus.textContent = 'Answer saved';
+                    this.updateNavButton(this.currentQuestionIndex, isCorrect);
+                    this.showAnswerFeedback(this.currentQuestionIndex);
+                });
+            });
+        }
+
+        this.updateNavigationHighlight();
+        this.updateButtonVisibility();
+        
+        if (this.timeLimit > 0 && !this.userAnswers[index]) {
+            this.startTimer();
+        } else {
+            this.timerContainer.classList.add('hidden');
+        }
+    },
+    
+    showAnswerFeedback: function(index) {
+        const correctAnswer = this.currentQuizQuestions[index].answer;
+        const userAnswer = this.userAnswers[index];
+        
+        document.querySelectorAll(`input[name="question${index}"]`).forEach(radio => {
+            radio.disabled = true;
+            const label = radio.parentElement;
+            label.classList.remove('hover:bg-slate-50', 'cursor-pointer');
+            
+            if (radio.value === correctAnswer) {
+                label.classList.add('option-correct');
+            } else if (userAnswer && radio.value === userAnswer.selected) {
+                label.classList.add('option-incorrect');
+            }
+        });
+    },
+
+    toggleFlag: function(index) {
+        this.flaggedQuestions[index] = !this.flaggedQuestions[index];
+        this.updateFlagStatusUI(index);
+        this.updateNavButton(index, this.userAnswers[index]?.correct);
+    },
+
+    updateFlagStatusUI: function(index) {
+        const isFlagged = this.flaggedQuestions[index];
+        this.flagBtnText.textContent = isFlagged ? 'Unflag question' : 'Flag question';
+        this.flagIcon.classList.toggle('text-amber-500', isFlagged);
+        this.flagIcon.classList.toggle('text-current', !isFlagged);
+    },
+
+    startTimer: function() {
+        this.timerContainer.classList.remove('hidden');
+        let timeLeft = this.timeLimit;
+        this.timerEl.textContent = timeLeft;
+        this.timerBar.style.width = '100%';
+        
+        this.timerInterval = setInterval(() => {
+            timeLeft--;
+            this.timerEl.textContent = timeLeft;
+            this.timerBar.style.width = `${(timeLeft / this.timeLimit) * 100}%`;
+
+            if (timeLeft <= 0) {
+                clearInterval(this.timerInterval);
+                if (!this.userAnswers[this.currentQuestionIndex]) {
+                     this.userAnswers[this.currentQuestionIndex] = { selected: null, correct: false };
+                     this.updateNavButton(this.currentQuestionIndex, false);
+                     this.showAnswerFeedback(this.currentQuestionIndex);
+                }
+                setTimeout(() => this.goToNextQuestion(), 1000); 
+            }
+        }, 1000);
+    },
+
+    buildNavigation: function() {
+        this.quizNavigation.innerHTML = '';
+        for (let i = 0; i < this.currentQuizQuestions.length; i++) {
+            const navBtn = document.createElement('button');
+            navBtn.classList.add('nav-btn', 'font-bold', 'py-2', 'rounded', 'nav-btn-default');
+            navBtn.innerHTML = `<span>${i + 1}</span><span class="flag-icon"></span>`;
+            navBtn.addEventListener('click', () => {
+                this.currentQuestionIndex = i;
+                this.loadQuestion(i);
+            });
+            this.quizNavigation.appendChild(navBtn);
+        }
+    },
+
+    updateNavigationHighlight: function() {
+        const navButtons = this.quizNavigation.children;
+        for (let i = 0; i < navButtons.length; i++) {
+            navButtons[i].classList.remove('nav-btn-current');
+            if (i === this.currentQuestionIndex) {
+                navButtons[i].classList.add('nav-btn-current');
+            }
+        }
+    },
+
+    updateNavButton: function(index, isCorrect) {
+        const navButton = this.quizNavigation.children[index];
+        navButton.classList.remove('nav-btn-default', 'nav-btn-correct', 'nav-btn-incorrect');
+        
+        if (this.userAnswers[index] === null) {
+            navButton.classList.add('nav-btn-default');
+        } else if (isCorrect) {
+            navButton.classList.add('nav-btn-correct');
+        } else {
+            navButton.classList.add('nav-btn-incorrect');
+        }
+
+        const flagIconEl = navButton.querySelector('.flag-icon');
+        flagIconEl.innerHTML = this.flaggedQuestions[index] ? '&#9873;' : '';
+    },
+    
+    updateButtonVisibility: function() {
+        this.prevBtn.style.visibility = this.currentQuestionIndex === 0 ? 'hidden' : 'visible';
+        if (this.currentQuestionIndex === this.currentQuizQuestions.length - 1) {
+            this.nextBtn.classList.add('hidden');
+            this.submitBtn.classList.remove('hidden');
+        } else {
+            this.nextBtn.classList.remove('hidden');
+            this.submitBtn.classList.add('hidden');
+        }
+    },
+
+    goToNextQuestion: function() {
+        if (this.currentQuestionIndex < this.currentQuizQuestions.length - 1) {
+            this.currentQuestionIndex++;
+            this.loadQuestion(this.currentQuestionIndex);
+        } else {
+            this.submitQuiz();
+        }
+    },
+    
+    goToPrevQuestion: function() {
+        if (this.currentQuestionIndex > 0) {
+            this.currentQuestionIndex--;
+            this.loadQuestion(this.currentQuestionIndex);
+        }
+    },
+
+    submitQuiz: function() {
+        clearInterval(this.timerInterval);
+        const score = this.userAnswers.filter(answer => answer && answer.correct).length;
+        this.scoreEl.textContent = score;
+        this.totalScoreEl.textContent = this.currentQuizQuestions.length;
+        
+        const newMemoryItems = new Set(state.memoriesList);
+        this.userAnswers.forEach((answer, index) => {
+            if (!answer || !answer.correct) {
+                const question = this.currentQuizQuestions[index];
+                newMemoryItems.add(question.originalIndex);
+            }
+        });
+        state.memoriesList = Array.from(newMemoryItems).sort((a, b) => a - b);
+        saveData(); 
+        
+        this.quizScreen.classList.add('hidden');
+        this.resultsScreen.classList.remove('hidden');
+
+        const incorrectCount = this.currentQuizQuestions.length - score;
+        this.reviewIncorrectBtn.style.display = incorrectCount > 0 ? 'inline-block' : 'none';
+    },
+
+    showReviewScreen: function() {
+        this.resultsScreen.classList.add('hidden');
+        this.reviewScreen.classList.remove('hidden');
+        this.incorrectQuestionsContainer.innerHTML = '';
+
+        this.currentQuizQuestions.forEach((question, index) => {
+            const userAnswer = this.userAnswers[index];
+            if (!userAnswer || !userAnswer.correct) {
+                const questionEl = document.createElement('div');
+                questionEl.className = 'bg-white p-6 rounded-lg shadow-md border-l-4 border-red-500';
+                
+                let optionsHtml = '';
+                question.options.forEach(option => {
+                    let labelClass = 'text-slate-700';
+                    let indicator = '';
+                    if (option === question.answer) {
+                        labelClass = 'text-green-600 font-bold';
+                        indicator = ' (Correct Answer)';
+                    } else if (userAnswer && option === userAnswer.selected) {
+                        labelClass = 'text-red-600 font-bold';
+                        indicator = ' (Your Answer)';
+                    }
+                    optionsHtml += `<li class="${labelClass}">${escapeHtml(option)}${indicator}</li>`;
+                });
+                
+                let imageHtml = question.image ? `<img src="${question.image}" class="my-4 rounded-lg max-w-xs h-auto shadow-sm">` : '';
+
+                questionEl.innerHTML = `
+                    <p class="text-lg font-semibold mb-2 text-slate-800">Question ${index + 1}: ${escapeHtml(question.question)}</p>
+                    ${imageHtml}
+                    <ul class="list-disc list-inside space-y-1 mt-4">
+                        ${optionsHtml}
+                    </ul>
+                `;
+                this.incorrectQuestionsContainer.appendChild(questionEl);
+            }
+        });
+    },
+
+    shuffleArray: function(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+};
+// --- END: MOODLE QUIZ INTEGRATION ---
+
 
 // --- Initial Load ---
 window.onload = () => {
   loadData();
+  state.isMuted = true; // Always default to muted on page load
   setupAudio();
   render();
 };
 </script>
 </body>
-
 </html>
-
-
-
-
-
-
-
-
-
-
