@@ -1,107 +1,287 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Multiple Choice Question Preparation - Home</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Matching the CDN and fonts used in your application -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --primary: #007bff; 
-      --background: #f8f9fa; 
-      --text: #212529; 
-      --border: #dee2e6;
-      --card-bg: #ffffff; 
-      --shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-    body {
-      font-family: 'Inter', sans-serif; 
-      margin: 0; 
-      background-color: var(--background);
-      color: var(--text);
-    }
-    .container { max-width: 900px; margin: 40px auto; padding: 20px; }
-    .card {
-      background-color: var(--card-bg); 
-      padding: 25px; 
-      border-radius: 12px; 
-      margin-bottom: 30px; 
-      box-shadow: var(--shadow); 
-      border: 1px solid var(--border);
-    }
-    .mcq-link {
-      background-color: var(--card-bg);
-      color: var(--text);
-      padding: 20px 15px;
-      border-radius: 8px;
-      box-shadow: var(--shadow);
-      border: 1px solid var(--border);
-      text-align: center;
-      font-weight: 600;
-      font-size: 1.1rem;
-      text-decoration: none;
-      transition: all 0.2s, box-shadow 0.2s;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      min-height: 100px;
-    }
-    .mcq-link:hover {
-      border-color: var(--primary);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-    }
-    .grid-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 20px;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Year 6 · Semester 2 — Exam Prep Index</title>
+<style>
+  :root{
+    --paper:#EFEAE0;
+    --ink:#26241F;
+    --rule:#C9C0AC;
+    --tab-red:#A23B2E;
+    --tab-blue:#2E5C6E;
+    --tab-olive:#5C6B3B;
+    --tab-mustard:#B58628;
+    --tab-plum:#6B3B5C;
+    --card-bg:#FBF8F2;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    background-image:
+      repeating-linear-gradient(0deg, rgba(0,0,0,0.02) 0px, rgba(0,0,0,0.02) 1px, transparent 1px, transparent 3px);
+    color:var(--ink);
+    font-family:"Iowan Old Style","Georgia","Times New Roman",serif;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:56px 20px 80px;
+  }
+
+  header{
+    width:100%;
+    max-width:920px;
+    margin-bottom:44px;
+    border-bottom:2px solid var(--ink);
+    padding-bottom:20px;
+  }
+  .eyebrow{
+    font-family:"Courier New",monospace;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    font-size:12px;
+    color:var(--tab-red);
+    margin:0 0 10px;
+  }
+  h1{
+    font-size:clamp(32px,5vw,48px);
+    margin:0 0 8px;
+    font-weight:600;
+    letter-spacing:-0.01em;
+  }
+  .subhead{
+    font-size:16px;
+    color:#514E45;
+    margin:0;
+    max-width:60ch;
+    line-height:1.5;
+  }
+
+  main{
+    width:100%;
+    max-width:920px;
+  }
+
+  .rack{
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+  }
+
+  .card{
+    display:flex;
+    align-items:stretch;
+    background:var(--card-bg);
+    border:1.5px solid var(--ink);
+    box-shadow:5px 5px 0 rgba(38,36,31,0.12);
+    text-decoration:none;
+    color:var(--ink);
+    position:relative;
+    overflow:hidden;
+    transition:transform 0.16s ease, box-shadow 0.16s ease;
+  }
+  .card:hover{
+    transform:translate(-3px,-3px);
+    box-shadow:8px 8px 0 rgba(38,36,31,0.16);
+  }
+  .card:focus-visible{
+    outline:3px solid var(--tab-blue);
+    outline-offset:2px;
+  }
+
+  .tab{
+    width:14px;
+    flex-shrink:0;
+  }
+
+  .card-body{
+    flex:1;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:20px;
+    padding:22px 26px;
+  }
+
+  .card-text .code{
+    font-family:"Courier New",monospace;
+    font-size:12px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:#7A7568;
+    margin-bottom:6px;
+  }
+  .card-text h2{
+    margin:0 0 6px;
+    font-size:23px;
+    font-weight:600;
+  }
+  .card-text .meta{
+    font-size:14px;
+    color:#5C594F;
+    font-style:italic;
+  }
+
+  .count{
+    text-align:right;
+    flex-shrink:0;
+  }
+  .count .num{
+    font-size:30px;
+    font-weight:700;
+    line-height:1;
+    display:block;
+  }
+  .count .lbl{
+    font-family:"Courier New",monospace;
+    font-size:10px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:#7A7568;
+  }
+  .arrow{
+    font-size:22px;
+    margin-left:6px;
+    transform:translateX(0);
+    transition:transform 0.16s ease;
+  }
+  .card:hover .arrow{ transform:translateX(4px); }
+
+  .card.red   .tab{background:var(--tab-red);}
+  .card.blue  .tab{background:var(--tab-blue);}
+  .card.olive .tab{background:var(--tab-olive);}
+  .card.mustard .tab{background:var(--tab-mustard);}
+  .card.plum  .tab{background:var(--tab-plum);}
+
+  .card.red   .num{color:var(--tab-red);}
+  .card.blue  .num{color:var(--tab-blue);}
+  .card.olive .num{color:var(--tab-olive);}
+  .card.mustard .num{color:var(--tab-mustard);}
+  .card.plum  .num{color:var(--tab-plum);}
+
+  footer{
+    max-width:920px;
+    width:100%;
+    margin-top:56px;
+    padding-top:18px;
+    border-top:1px solid var(--rule);
+    font-size:12px;
+    color:#8A8575;
+    font-family:"Courier New",monospace;
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+
+  @media (max-width:560px){
+    .card-body{flex-direction:column;align-items:flex-start;gap:12px;padding:20px;}
+    .count{text-align:left;}
+    .arrow{display:none;}
+  }
+</style>
 </head>
 <body>
 
-<div class="container">
-  <h1 class="text-3xl font-bold text-center mb-8" style="color: var(--primary);">Multiple Choice Question Preparation</h1>
+<header>
+  <p class="eyebrow">Year 6 &middot; Semester 2 &middot; Revision Set</p>
+  <h1>Exam Prep Index</h1>
+  <p class="subhead">Five subject binders, one shelf. Pick a tab to open the full question set for that subject.</p>
+</header>
 
-  <!-- Instructions Section -->
-  <div class="card">
-    <h2 class="text-2xl font-semibold mb-4 border-b pb-2">How to Use This Repository</h2>
-    <ol class="list-decimal list-inside space-y-3 text-lg">
-      <li>Select one of the MCQ modules from the grid below to open the quiz.</li>
-      <li>Read each question carefully and click on the response box you believe is correct.</li>
-      <li>The system will immediately highlight your selection in green for correct or red for wrong.</li>
-      <li>Follow the progress bar at the top of the screen to track your completion.</li>
-      <li>Check your final results on the score bar at the end of the test.</li>
-    </ol>
+<main>
+  <div class="rack">
+
+    <a class="card red" href="Y6_Sem_2_Pharmaco_442_Q_Quiz_Full_2025.HTML">
+      <div class="tab"></div>
+      <div class="card-body">
+        <div class="card-text">
+          <div class="code">Pharmacology</div>
+          <h2>Pharmaco</h2>
+          <div class="meta">Full quiz &middot; 2025</div>
+        </div>
+        <div class="count">
+          <span class="num">442</span>
+          <span class="lbl">Questions</span>
+        </div>
+        <span class="arrow">&rarr;</span>
+      </div>
+    </a>
+
+    <a class="card blue" href="Y6_Sem_2_Psycho_129_Q_Quiz_Full_2025.html">
+      <div class="tab"></div>
+      <div class="card-body">
+        <div class="card-text">
+          <div class="code">Psychiatry</div>
+          <h2>Psycho</h2>
+          <div class="meta">Full quiz &middot; 2025</div>
+        </div>
+        <div class="count">
+          <span class="num">129</span>
+          <span class="lbl">Questions</span>
+        </div>
+        <span class="arrow">&rarr;</span>
+      </div>
+    </a>
+
+    <a class="card olive" href="Y6_Sem_2_Med_pro_100_Q_Quiz_Full_2026.html">
+      <div class="tab"></div>
+      <div class="card-body">
+        <div class="card-text">
+          <div class="code">Medical Professionalism</div>
+          <h2>Med-Pro</h2>
+          <div class="meta">Full quiz &middot; 2026</div>
+        </div>
+        <div class="count">
+          <span class="num">100</span>
+          <span class="lbl">Questions</span>
+        </div>
+        <span class="arrow">&rarr;</span>
+      </div>
+    </a>
+
+    <a class="card mustard" href="Y6_Sem_2_Thera_438_Q_Quiz_Full_2025.HTML">
+      <div class="tab"></div>
+      <div class="card-body">
+        <div class="card-text">
+          <div class="code">Therapeutics</div>
+          <h2>Thera</h2>
+          <div class="meta">Full quiz &middot; 2025</div>
+        </div>
+        <div class="count">
+          <span class="num">438</span>
+          <span class="lbl">Questions</span>
+        </div>
+        <span class="arrow">&rarr;</span>
+      </div>
+    </a>
+
+    <a class="card plum" href="Y6_Sem_2_Foresenic_281_Q_Quiz_Full_2025.HTML">
+      <div class="tab"></div>
+      <div class="card-body">
+        <div class="card-text">
+          <div class="code">Forensic Medicine</div>
+          <h2>Forensic</h2>
+          <div class="meta">Full quiz &middot; 2025</div>
+        </div>
+        <div class="count">
+          <span class="num">281</span>
+          <span class="lbl">Questions</span>
+        </div>
+        <span class="arrow">&rarr;</span>
+      </div>
+    </a>
+
   </div>
+</main>
 
-  <!-- Links Section -->
-  <h2 class="text-2xl font-semibold mb-4">Available Quiz Modules</h2>
-  <div class="grid-container">
-    
-    <!-- EDIT THESE LINKS: Change the href="..." to the actual names of your HTML files -->
-    <a href="mcq_anesthesie.html" class="mcq-link">
-      <span>Module 1: Anesthésie & Généralités</span>
-    </a>
-    
-    <a href="mcq_pharmacology.html" class="mcq-link">
-      <span>Module 2: Pharmacologie</span>
-    </a>
-    
-    <a href="mcq_cardiology.html" class="mcq-link">
-      <span>Module 3: Cardiology & Blood Pressure</span>
-    </a>
-    
-    <a href="mcq_endocrinology.html" class="mcq-link">
-      <span>Module 4: Endocrinology</span>
-    </a>
-
-    <!-- Add as many links as you need below -->
-    
-  </div>
-</div>
+<footer>
+  <span>1,390 questions across 5 subjects</span>
+  <span>Keep all files in the same folder as this index</span>
+</footer>
 
 </body>
 </html>
