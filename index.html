@@ -1,43 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Collection</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>Multiple Choice Question Preparation - Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Matching the CDN and fonts used in your application -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #007bff; 
+      --background: #f8f9fa; 
+      --text: #212529; 
+      --border: #dee2e6;
+      --card-bg: #ffffff; 
+      --shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    body {
+      font-family: 'Inter', sans-serif; 
+      margin: 0; 
+      background-color: var(--background);
+      color: var(--text);
+    }
+    .container { max-width: 900px; margin: 40px auto; padding: 20px; }
+    .card {
+      background-color: var(--card-bg); 
+      padding: 25px; 
+      border-radius: 12px; 
+      margin-bottom: 30px; 
+      box-shadow: var(--shadow); 
+      border: 1px solid var(--border);
+    }
+    .mcq-link {
+      background-color: var(--card-bg);
+      color: var(--text);
+      padding: 20px 15px;
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      text-align: center;
+      font-weight: 600;
+      font-size: 1.1rem;
+      text-decoration: none;
+      transition: all 0.2s, box-shadow 0.2s;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 100px;
+    }
+    .mcq-link:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="global-header">
-            <h1>Quiz Collection</h1>
-        </div>
-        <p>Welcome to your central hub for all the quiz materials. Select a topic below to start practicing.</p>
-        
-        <div class="main-menu">
-            <!-- Link to the Forensic Quiz -->
-            <a href="Y6 Sem 2 Foresenic 281 Q Quiz Full 2025.HTML" class="menu-button">
-                Forensic Quiz
-            </a>
-            
-            <!-- Link to the Pharmacology Quiz -->
-            <a href="Y6 Sem 2 Pharmaco 442 Q Quiz Full 2025.HTML" class="menu-button">
-                Pharmacology Quiz
-            </a>
 
-            <!-- Link to the Therapeutics Quiz -->
-            <a href="Y6 Sem 2 Thera 438 Q Quiz Full 2025.HTML" class="menu-button">
-                Therapeutics Quiz
-            </a>
+<div class="container">
+  <h1 class="text-3xl font-bold text-center mb-8" style="color: var(--primary);">Multiple Choice Question Preparation</h1>
 
-            <!-- Link to the Psychiatry Quiz -->
-            <a href="Y6 Sem 2 Psycho 129 Q Quiz Full 2025.html" class="menu-button">
-                Psychiatry Quiz
-            </a>
-        </div>
+  <!-- Instructions Section -->
+  <div class="card">
+    <h2 class="text-2xl font-semibold mb-4 border-b pb-2">How to Use This Repository</h2>
+    <ol class="list-decimal list-inside space-y-3 text-lg">
+      <li>Select one of the MCQ modules from the grid below to open the quiz.</li>
+      <li>Read each question carefully and click on the response box you believe is correct.</li>
+      <li>The system will immediately highlight your selection in green for correct or red for wrong.</li>
+      <li>Follow the progress bar at the top of the screen to track your completion.</li>
+      <li>Check your final results on the score bar at the end of the test.</li>
+    </ol>
+  </div>
 
-        <div class="notes-section">
-            <p><strong>Note:</strong> All quizzes are designed for self-assessment and practice. Make sure you have reviewed the relevant materials before starting.</p>
-        </div>
-    </div>
+  <!-- Links Section -->
+  <h2 class="text-2xl font-semibold mb-4">Available Quiz Modules</h2>
+  <div class="grid-container">
+    
+    <!-- EDIT THESE LINKS: Change the href="..." to the actual names of your HTML files -->
+    <a href="mcq_anesthesie.html" class="mcq-link">
+      <span>Module 1: Anesthésie & Généralités</span>
+    </a>
+    
+    <a href="mcq_pharmacology.html" class="mcq-link">
+      <span>Module 2: Pharmacologie</span>
+    </a>
+    
+    <a href="mcq_cardiology.html" class="mcq-link">
+      <span>Module 3: Cardiology & Blood Pressure</span>
+    </a>
+    
+    <a href="mcq_endocrinology.html" class="mcq-link">
+      <span>Module 4: Endocrinology</span>
+    </a>
+
+    <!-- Add as many links as you need below -->
+    
+  </div>
+</div>
+
 </body>
 </html>
