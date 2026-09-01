@@ -1358,14 +1358,59 @@ function getScoreRemark(score) {
 }
 
 // ---  Controls ---
+// List of candidate tracks. Missing files are skipped automatically,
+// so it's fine if you have fewer than 10.
+const MUSIC_TRACKS = [
+  "background_music.mp3",
+  "background_music2.mp3",
+  "background_music3.mp3",
+  "background_music4.mp3",
+  "background_music5.mp3",
+  "background_music6.mp3",
+  "background_music7.mp3",
+  "background_music8.mp3",
+  "background_music9.mp3",
+  "background_music10.mp3"
+];
+let currentTrackIndex = -1;
+
+function pickRandomTrack(excludeIndex) {
+  if (MUSIC_TRACKS.length <= 1) return 0;
+  let idx;
+  do {
+    idx = Math.floor(Math.random() * MUSIC_TRACKS.length);
+  } while (idx === excludeIndex);
+  return idx;
+}
+
+function playTrack(audio, index) {
+  currentTrackIndex = index;
+  audio.src = MUSIC_TRACKS[index];
+  if (!state.isMuted) {
+    audio.play().catch(e => console.log("Autoplay was prevented."));
+  }
+}
+
 function setupAudio() {
     const audio = document.getElementById('bg-music');
     if (!audio) return;
-    audio.src = "background_music.mp3"; 
+    audio.loop = false; // handled manually so we can shuffle to a new track
+
+    // If a track file is missing/broken, skip to another random track.
+    audio.addEventListener('error', function() {
+      const nextIndex = pickRandomTrack(currentTrackIndex);
+      playTrack(audio, nextIndex);
+    });
+
+    // When a track finishes, play a different random track.
+    audio.addEventListener('ended', function() {
+      const nextIndex = pickRandomTrack(currentTrackIndex);
+      playTrack(audio, nextIndex);
+    });
+
+    const startIndex = pickRandomTrack(-1);
     audio.muted = state.isMuted;
-    if (!state.isMuted) {
-      audio.play().catch(e => console.log("Autoplay was prevented."));
-    }
+    playTrack(audio, startIndex);
 }
 window.toggleMute = function() {
     state.isMuted = !state.isMuted;
